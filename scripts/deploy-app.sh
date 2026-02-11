@@ -70,7 +70,7 @@ fi
 # Deploy Helm chart if exists
 if [ -d "project-bedrock-chart" ]; then
     echo "📊 Deploying Helm chart..."
-    helm upgrade --install retail-store ./project-bedrock-chart \
+    helm upgrade --install --atomic --timeout 5m retail-store ./project-bedrock-chart \
         --namespace $NAMESPACE \
         --values project-bedrock-chart/values-generated.yaml \
         --wait --timeout 10m
