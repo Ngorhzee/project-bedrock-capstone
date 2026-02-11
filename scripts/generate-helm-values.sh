@@ -4,7 +4,7 @@ set -e
 echo "=== Generating Helm Values from Terraform Outputs ==="
 
 TERRAFORM_OUTPUTS="${GITHUB_WORKSPACE:-$(git rev-parse --show-toplevel)}/grading.json"
-
+REPO_ROOT="${GITHUB_WORKSPACE:-$(git rev-parse --show-toplevel)}"
 if [ -f "$TERRAFORM_OUTPUTS" ]; then
   echo "📦 Reading from grading.json artifact..."
   CATALOG_ENDPOINT=$(jq -r '.catalog_mysql_endpoint.value // empty' "$TERRAFORM_OUTPUTS")
@@ -36,7 +36,7 @@ cd ..
 if [ -z "$CATALOG_ENDPOINT" ] || [ -z "$ORDERS_ENDPOINT" ]; then
   echo "⚠️  RDS instances not found. Using in-cluster databases."
   
-  cat > ./project-bedrock-chart/values-generated.yaml << EOF
+  cat > $REPO_ROOT/project-bedrock-chart/values-generated.yaml << EOF
 namespace: retail-app
 
 rds:
@@ -56,7 +56,7 @@ else
   ORDERS_DB=$(echo $ORDERS_SECRET | jq -r '.database')
   
   # Generate values file
-  cat > ./project-bedrock-chart/values-generated.yaml << EOF
+  cat > $REPO_ROOT/project-bedrock-chart/values-generated.yaml << EOF
 namespace: retail-app
 
 rds:
