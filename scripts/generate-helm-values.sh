@@ -3,11 +3,15 @@ set -e
 
 echo "=== Generating Helm Values from Terraform Outputs ==="
 
-cd terraform
+TERRAFORM_OUTPUTS="$GITHUB_WORKSPACE/grading.json"
+if [ ! -f "$TERRAFORM_OUTPUTS" ]; then
+  echo "Error: grading.json not found"
+  exit 1
+fi
 
 # Get RDS endpoints and credentials from Terraform
-CATALOG_ENDPOINT=$(terraform output -raw catalog_mysql_endpoint 2>/dev/null || echo "")
-ORDERS_ENDPOINT=$(terraform output -raw orders_postgresql_endpoint 2>/dev/null || echo "")
+CATALOG_ENDPOINT=$(jq -r '.catalog_mysql_endpoint.value // empty' "$TERRAFORM_OUTPUTS")
+ORDERS_ENDPOINT=$(jq -r '.orders_postgresql_endpoint.value // empty' "$TERRAFORM_OUTPUTS")
 
 # Get secrets from AWS Secrets Manager
 CATALOG_SECRET=$(aws secretsmanager get-secret-value \
